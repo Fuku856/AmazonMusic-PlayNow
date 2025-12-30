@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Amazon Music Trigger</string>
+    <string name="accessibility_service_description">Amazon Music Trigger Service: Detects headset button presses to launch My BGM.</string>
+</resources>
