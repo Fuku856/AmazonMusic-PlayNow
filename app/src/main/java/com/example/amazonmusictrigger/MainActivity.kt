@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                     intent.setPackage("com.amazon.mp3") // パッケージを明示指定
                     
                     // Intentの内容をログ出力
-                    Log.d(tag, "Created Intent: action=${intent.action}, data=${intent.data}, package=${intent.package}")
+                    Log.d(tag, "Created Intent: action=${intent.action}, data=${intent.data}, package=${intent.getPackage()}")
                     
                     startActivity(intent)
                     success = true
