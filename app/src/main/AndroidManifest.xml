@@ -8,6 +8,7 @@
     <!-- ロック画面やバックグラウンドからアクティビティを起動するために必要 (Android 10+) -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- Android 11+ (API 30+) で他アプリの存在を確認するために必要 -->
     <queries>

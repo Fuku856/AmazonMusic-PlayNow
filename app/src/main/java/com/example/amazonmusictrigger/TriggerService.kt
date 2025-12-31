@@ -7,6 +7,9 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
@@ -15,7 +18,7 @@ import android.widget.Toast
 class TriggerService : AccessibilityService() {
 
     private var lastNextPressTime: Long = 0
-    private val doublePressThreshold = 400L // 400ms
+    private val doublePressThreshold = 800L // 800ms to allow for system lag
     private val handler = Handler(Looper.getMainLooper())
     private var pendingSinglePressRunnable: Runnable? = null
     
@@ -77,7 +80,20 @@ class TriggerService : AccessibilityService() {
 
     private fun launchAmazonMusic() {
         Log.d("TriggerService", "Detected Double Skip! Preparing to launch Amazon Music.")
+        vibrateFeedback()
         launchMyBgmStation()
+    }
+
+    private fun vibrateFeedback() {
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(100)
+            }
+        }
     }
 
     private fun launchMyBgmStation() {
