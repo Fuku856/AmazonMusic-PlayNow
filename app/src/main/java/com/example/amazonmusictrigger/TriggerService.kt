@@ -101,7 +101,7 @@ class TriggerService : AccessibilityService() {
             val uri = Uri.parse("amzn://music/station/mysoundtrack")
             val intent = Intent(Intent.ACTION_VIEW, uri)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.setPackage("com.amazon.mp3") // Explicitly set package
+            // intent.setPackage("com.amazon.mp3") // REMOVED
             startActivity(intent)
         } catch (e: Exception) {
             Log.e("TriggerService", "Error launching Amazon Music Station", e)

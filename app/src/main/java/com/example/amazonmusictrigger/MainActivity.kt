@@ -85,9 +85,7 @@ class MainActivity : AppCompatActivity() {
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            // intent.setPackage("com.amazon.mp3") // Explicit package sometimes helps, sometimes restricts. keeping generic if user has diff version? 
-            // Actually, safe to restrict to amazon music to avoid browser opening it.
-            intent.setPackage("com.amazon.mp3") 
+            // intent.setPackage("com.amazon.mp3") // REMOVED: Causing result code -91 on some devices
 
             startActivity(intent)
             Toast.makeText(this, "起動試行: $uriString", Toast.LENGTH_SHORT).show()
