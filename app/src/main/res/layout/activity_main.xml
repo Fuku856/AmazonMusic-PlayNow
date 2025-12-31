@@ -44,7 +44,18 @@
             android:text="重ねて表示の許可設定を開く"
             android:layout_marginBottom="24dp" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="3. バックグラウンド動作のために、バッテリー最適化を解除してください。"
+            android:layout_marginBottom="8dp" />
 
+        <Button
+            android:id="@+id/btn_battery_optimization"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="バッテリー最適化設定を開く"
+            android:layout_marginBottom="24dp" />
 
         <TextView
             android:layout_width="match_parent"

@@ -93,10 +93,15 @@ class TriggerService : AccessibilityService() {
             val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             if (vibrator.hasVibrator()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+                    val effect = VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE)
+                    val audioAttributes = android.media.AudioAttributes.Builder()
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                        .build()
+                    vibrator.vibrate(effect, audioAttributes)
                 } else {
                     @Suppress("DEPRECATION")
-                    vibrator.vibrate(100)
+                    vibrator.vibrate(200)
                 }
             }
         } catch (e: Exception) {

@@ -39,7 +39,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 3. Launch Mode Settings REMOVED
+        // 3. Battery Optimization
+        findViewById<Button>(R.id.btn_battery_optimization).setOnClickListener {
+            checkBatteryOptimization()
+        }
+
+        checkBatteryOptimization()
 
         // 4. Test Buttons
         // Existing Standard Test (uses current preference logic technically, but here we force the specific URI for testing)
@@ -161,5 +166,31 @@ class MainActivity : AppCompatActivity() {
         }
 
         tvLog.text = sb.toString()
+    }
+
+    private fun checkBatteryOptimization() {
+        val powerManager = getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+        if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
+            Toast.makeText(this, "バックグラウンド動作のため、制限なしに設定してください", Toast.LENGTH_LONG).show()
+            try {
+                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                intent.data = Uri.parse("package:$packageName")
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Failed to launch battery optimization settings", e)
+                try {
+                     val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                     startActivity(intent)
+                } catch (e2: Exception) {
+                    Toast.makeText(this, "設定画面を開けませんでした", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+             // Already optimized (ignored), maybe show toast only if called from button?
+             // Since we call this from onCreate, checking if called explicitly would be complex without param.
+             // But for onCreate usage, we just want to silent check.
+             // If button clicked, we might want feedback.
+             // For now, let's leave as is. The user mainly asked for flow.
+        }
     }
 }
