@@ -44,6 +44,8 @@ class TriggerService : AccessibilityService() {
         if (ignoreNextKey) {
             return super.onKeyEvent(event)
         }
+        val action = event.action
+        val keyCode = event.keyCode
         Log.d("TriggerService", "onKeyEvent: action=$action, keyCode=$keyCode")
         
         // Debug: Show toast for ANY key to verify service is alive and receiving events
