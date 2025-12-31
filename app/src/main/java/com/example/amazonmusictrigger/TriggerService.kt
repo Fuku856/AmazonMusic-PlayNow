@@ -46,6 +46,14 @@ class TriggerService : AccessibilityService() {
         }
         val action = event.action
         val keyCode = event.keyCode
+        Log.d("TriggerService", "onKeyEvent: action=$action, keyCode=$keyCode")
+        // Debug: Show generic toast for media keys to verify reception
+        if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT || keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
+             android.os.Handler(android.os.Looper.getMainLooper()).post {
+                 Toast.makeText(applicationContext, "Key: $keyCode", Toast.LENGTH_SHORT).show()
+             }
+        }
+
 
         if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
             if (action == KeyEvent.ACTION_DOWN) {

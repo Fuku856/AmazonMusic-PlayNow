@@ -1,8 +1,11 @@
 package com.example.amazonmusictrigger
 
+
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.view.accessibility.AccessibilityManager
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -149,6 +152,39 @@ class MainActivity : AppCompatActivity() {
         }
 
         tvLog.text = sb.toString()
+    }
+
+    private fun checkOverlayPermission() {
+        if (!Settings.canDrawOverlays(this)) {
+            Toast.makeText(this, "バックグラウンド実行のため、「他のアプリの上に重ねて表示」を許可してください", Toast.LENGTH_LONG).show()
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+            startActivity(intent)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkAccessibilityServiceEnabled()
+    }
+
+    private fun checkAccessibilityServiceEnabled() {
+        if (!isAccessibilityServiceEnabled(TriggerService::class.java)) {
+            Toast.makeText(this, "動作にはアクセシビリティサービス(ユーザー補助)の有効化が必要です", Toast.LENGTH_LONG).show()
+            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            startActivity(intent)
+        }
+    }
+
+    private fun isAccessibilityServiceEnabled(service: Class<out android.accessibilityservice.AccessibilityService>): Boolean {
+        val am = getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        val enabledServices = am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+        for (enabledService in enabledServices) {
+            val enabledServiceInfo = enabledService.resolveInfo.serviceInfo
+            if (enabledServiceInfo.packageName == packageName && enabledServiceInfo.name == service.name) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun checkBatteryOptimization() {
