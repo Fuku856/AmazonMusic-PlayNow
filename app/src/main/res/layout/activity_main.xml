@@ -1,57 +1,142 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center">
+    android:fillViewport="true">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Amazon Music Trigger"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="32dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="1. キー操作を検知するためにユーザー補助設定を有効にしてください。"
-        android:layout_marginBottom="8dp" />
-
-    <Button
-        android:id="@+id/btn_accessibility"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ユーザー補助設定を開く"
-        android:layout_marginBottom="24dp" />
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="2. 画面ロック中でも起動するために、「重ねて表示」を許可してください。"
-        android:layout_marginBottom="8dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Amazon Music Trigger"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="32dp" />
 
-    <Button
-        android:id="@+id/btn_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="重ねて表示の許可設定を開く"
-        android:layout_marginBottom="24dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. キー操作を検知するためにユーザー補助設定を有効にしてください。"
+            android:layout_marginBottom="8dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="3. 動作テスト"
-        android:layout_marginBottom="8dp" />
+        <Button
+            android:id="@+id/btn_accessibility"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ユーザー補助設定を開く"
+            android:layout_marginBottom="24dp" />
 
-    <Button
-        android:id="@+id/btn_test_bgm"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="My BGM テスト再生"
-        android:backgroundTint="#FF9800"
-        android:textColor="#FFFFFF" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2. 画面ロック中でも起動するために、「重ねて表示」を許可してください。"
+            android:layout_marginBottom="8dp" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btn_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="重ねて表示の許可設定を開く"
+            android:layout_marginBottom="24dp" />
+
+        <!-- 設定セクション -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="3. 動作モード設定 (保存されます)"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <RadioGroup
+            android:id="@+id/rg_launch_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_border"
+            android:padding="8dp">
+
+            <RadioButton
+                android:id="@+id/rb_mode_station"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My BGM を再生 (エラーが出る場合あり)"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/rb_mode_launch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="シンプル起動 (アプリを開くだけ)" />
+        </RadioGroup>
+
+        <!-- URIテストセクション -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="4. 動作テスト / 回避策の検証"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="既存: amzn://music/station/mysoundtrack"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+        <Button
+            android:id="@+id/btn_test_bgm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="標準テスト (現在の設定)"
+            android:backgroundTint="#FF9800"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="案1: amzn://music/prime/station/..."
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+        <Button
+            android:id="@+id/btn_test_prime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="テスト: Prime Station"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="案2: amzn://music/shuffled-station/..."
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+        <Button
+            android:id="@+id/btn_test_shuffled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="テスト: Shuffled Station"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="案3: amzn://music/play?type=station..."
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+        <Button
+            android:id="@+id/btn_test_play_param"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="テスト: Play Param"
+            android:layout_marginBottom="24dp" />
+
+    </LinearLayout>
+</ScrollView>

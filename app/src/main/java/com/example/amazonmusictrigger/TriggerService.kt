@@ -18,6 +18,10 @@ class TriggerService : AccessibilityService() {
     private val doublePressThreshold = 400L // 400ms
     private val handler = Handler(Looper.getMainLooper())
     private var pendingSinglePressRunnable: Runnable? = null
+    
+    // Preference Constants (Must match MainActivity)
+    private val PREFS_NAME = "AmazonMusicTriggerPrefs"
+    private val KEY_SIMPLE_LAUNCH = "simple_launch_mode"
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -58,7 +62,7 @@ class TriggerService : AccessibilityService() {
             pendingSinglePressRunnable = null
             
             // ダブルプレス処理実行
-            launchAmazonMusicMyBgm()
+            launchAmazonMusic()
         } else {
             // 1回目のプレス -> タイマーセット
             pendingSinglePressRunnable = Runnable {
@@ -72,24 +76,60 @@ class TriggerService : AccessibilityService() {
         lastNextPressTime = currentTime
     }
 
-    private fun launchAmazonMusicMyBgm() {
-        Log.d("TriggerService", "Detected Double Skip! Launching Amazon Music My BGM.")
+    private fun launchAmazonMusic() {
+        Log.d("TriggerService", "Detected Double Skip! Preparing to launch Amazon Music.")
+        
+        // 設定を読み込む
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isSimpleLaunch = prefs.getBoolean(KEY_SIMPLE_LAUNCH, false)
+
+        if (isSimpleLaunch) {
+            Log.d("TriggerService", "Mode: Simple Launch (Just Open App)")
+            launchAppOnly()
+        } else {
+            Log.d("TriggerService", "Mode: My BGM Station")
+            launchMyBgmStation()
+        }
+    }
+
+    private fun launchMyBgmStation() {
         handler.post {
             Toast.makeText(applicationContext, "My BGM 起動", Toast.LENGTH_SHORT).show()
         }
-
         try {
             // Amazon Music "My BGM" (My Soundtrack) URI
             val uri = Uri.parse("amzn://music/station/mysoundtrack")
             val intent = Intent(Intent.ACTION_VIEW, uri)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // Serviceから起動するので必須
-            
-            // ロック画面対応等はActivity側で制御されるが、Intent自体はこれで飛ぶ
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.setPackage("com.amazon.mp3") // Explicitly set package
             startActivity(intent)
         } catch (e: Exception) {
-            Log.e("TriggerService", "Error launching Amazon Music", e)
+            Log.e("TriggerService", "Error launching Amazon Music Station", e)
             handler.post {
-                Toast.makeText(applicationContext, "Amazon Musicの起動に失敗しました", Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, "起動エラー: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun launchAppOnly() {
+        handler.post {
+            Toast.makeText(applicationContext, "Amazon Music 起動", Toast.LENGTH_SHORT).show()
+        }
+        try {
+            val intent = packageManager.getLaunchIntentForPackage("com.amazon.mp3")
+            if (intent != null) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            } else {
+                Log.e("TriggerService", "Amazon Music app not found")
+                handler.post {
+                    Toast.makeText(applicationContext, "Amazon Musicアプリが見つかりません", Toast.LENGTH_LONG).show()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("TriggerService", "Error launching Amazon Music App", e)
+            handler.post {
+                Toast.makeText(applicationContext, "起動エラー: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
