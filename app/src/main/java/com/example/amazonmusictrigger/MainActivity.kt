@@ -67,6 +67,19 @@ class MainActivity : AppCompatActivity() {
 
             startActivity(intent)
             Toast.makeText(this, "起動試行: $uriString", Toast.LENGTH_SHORT).show()
+
+            // 1.5秒後にホーム画面へ遷移 (バグ回避のため)
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                try {
+                    val homeIntent = packageManager.getLaunchIntentForPackage("com.amazon.mp3")
+                    if (homeIntent != null) {
+                        homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(homeIntent)
+                    }
+                } catch (e: Exception) {
+                    Log.e(tag, "Failed to launch Home", e)
+                }
+            }, 1500)
         } catch (e: Exception) {
             Log.e(tag, "Failed to launch $uriString", e)
             Toast.makeText(this, "起動失敗: ${e.message}", Toast.LENGTH_LONG).show()
