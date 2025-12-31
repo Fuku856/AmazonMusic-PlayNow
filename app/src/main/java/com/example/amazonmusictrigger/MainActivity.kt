@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
 
         // Auto-check battery optimization on startup (silent)
         checkBatteryOptimization()
+        checkOverlayPermission()
 
         // 4. Test Buttons
         // Existing Standard Test (uses current preference logic technically, but here we force the specific URI for testing)
@@ -173,6 +174,14 @@ class MainActivity : AppCompatActivity() {
              // But for onCreate usage, we just want to silent check.
              // If button clicked, we might want feedback.
              // For now, let's leave as is. The user mainly asked for flow.
+        }
+    }
+
+    private fun checkOverlayPermission() {
+        if (!Settings.canDrawOverlays(this)) {
+            Toast.makeText(this, "バックグラウンド実行のため、「他のアプリの上に重ねて表示」を許可してください", Toast.LENGTH_LONG).show()
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+            startActivity(intent)
         }
     }
 }

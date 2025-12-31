@@ -119,7 +119,7 @@ class TriggerService : AccessibilityService() {
             val uri = Uri.parse("https://music.amazon.co.jp/stations/A1ESXGJW9GSMCX")
             val intent = Intent(Intent.ACTION_VIEW, uri)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            // intent.setPackage("com.amazon.mp3") // REMOVED
+            intent.setPackage("com.amazon.mp3")
             startActivity(intent)
             
             // 1.5秒後にホーム画面へ遷移 (バグ回避のため)
