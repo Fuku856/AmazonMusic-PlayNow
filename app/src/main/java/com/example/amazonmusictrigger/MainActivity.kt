@@ -45,21 +45,14 @@ class MainActivity : AppCompatActivity() {
         // Existing Standard Test (uses current preference logic technically, but here we force the specific URI for testing)
         // But wait, the original button was "Test My BGM". Let's make it test the STANDARD URI we use.
         findViewById<Button>(R.id.btn_test_bgm).setOnClickListener {
-            // amzn:// が機能しないため https:// に変更
-            attemptLaunch("https://music.amazon.co.jp/stations/mysoundtrack")
+            // ユーザー指定のステーションID
+            attemptLaunch("https://music.amazon.co.jp/stations/A1ESXGJW9GSMCX")
         }
 
-        findViewById<Button>(R.id.btn_test_prime).setOnClickListener {
-            attemptLaunch("amzn://music/prime/station/mysoundtrack")
+        findViewById<Button>(R.id.btn_run_diagnostics).setOnClickListener {
+            runDiagnostics()
         }
-
-        findViewById<Button>(R.id.btn_test_shuffled).setOnClickListener {
-            attemptLaunch("amzn://music/shuffled-station/mysoundtrack")
-        }
-
-        findViewById<Button>(R.id.btn_test_play_param).setOnClickListener {
-            attemptLaunch("amzn://music/play?type=station&id=mysoundtrack")
-        }
+    }
 
         findViewById<Button>(R.id.btn_run_diagnostics).setOnClickListener {
             runDiagnostics()
@@ -119,7 +112,7 @@ class MainActivity : AppCompatActivity() {
 
         // 3b. Check URI Resolution (HTTPS) - NEW
         sb.append("\n[3b] Resolve 'https://music.amazon.co.jp/...':\n")
-        val httpsIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://music.amazon.co.jp/stations/mysoundtrack"))
+        val httpsIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://music.amazon.co.jp/stations/A1ESXGJW9GSMCX"))
         val httpsactivities = packageManager.queryIntentActivities(httpsIntent, 0)
         sb.append(" - Found ${httpsactivities.size} handlers.\n")
         for (resolveInfo in httpsactivities) {

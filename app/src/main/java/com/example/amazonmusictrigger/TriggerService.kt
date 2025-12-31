@@ -86,8 +86,8 @@ class TriggerService : AccessibilityService() {
         }
         try {
             // "amzn://" スキームが認識されないため、HTTPSリンク (App Links) を使用
-            // これによりAmazon Musicアプリがリンク関連付けされていればアプリで開く
-            val uri = Uri.parse("https://music.amazon.co.jp/stations/mysoundtrack")
+            // ユーザー指定のステーションIDを使用: A1ESXGJW9GSMCX
+            val uri = Uri.parse("https://music.amazon.co.jp/stations/A1ESXGJW9GSMCX")
             val intent = Intent(Intent.ACTION_VIEW, uri)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             // intent.setPackage("com.amazon.mp3") // REMOVED

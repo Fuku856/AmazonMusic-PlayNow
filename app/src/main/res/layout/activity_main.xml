@@ -46,11 +46,10 @@
 
 
 
-        <!-- URIテストセクション -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="4. 動作テスト / 回避策の検証"
+            android:text="4. 動作テスト"
             android:textStyle="bold"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp" />
@@ -58,56 +57,17 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="既存: amzn://music/station/mysoundtrack"
+            android:text="Webリンク: music.amazon.co.jp/stations/A1ESXGJW9GSMCX"
             android:textSize="12sp"
             android:layout_marginBottom="4dp"/>
         <Button
             android:id="@+id/btn_test_bgm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="標準テスト (現在の設定)"
+            android:text="My BGM を再生 (ID指定)"
             android:backgroundTint="#FF9800"
             android:textColor="#FFFFFF"
             android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="案1: amzn://music/prime/station/..."
-            android:textSize="12sp"
-            android:layout_marginBottom="4dp"/>
-        <Button
-            android:id="@+id/btn_test_prime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="テスト: Prime Station"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="案2: amzn://music/shuffled-station/..."
-            android:textSize="12sp"
-            android:layout_marginBottom="4dp"/>
-        <Button
-            android:id="@+id/btn_test_shuffled"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="テスト: Shuffled Station"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="案3: amzn://music/play?type=station..."
-            android:textSize="12sp"
-            android:layout_marginBottom="4dp"/>
-        <Button
-            android:id="@+id/btn_test_play_param"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="テスト: Play Param"
-            android:layout_marginBottom="24dp" />
 
         <TextView
             android:layout_width="match_parent"
