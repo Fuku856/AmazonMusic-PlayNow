@@ -20,30 +20,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // 1. Accessibility Button
-        findViewById<Button>(R.id.btn_accessibility).setOnClickListener {
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-            Toast.makeText(this, "「Amazon Music Trigger」を探してONにしてください", Toast.LENGTH_LONG).show()
+        // 1. Settings Button
+        findViewById<Button>(R.id.btn_settings).setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        // 2. Overlay Button
-        findViewById<Button>(R.id.btn_overlay).setOnClickListener {
-            if (!Settings.canDrawOverlays(this)) {
-                val intent = Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName")
-                )
-                startActivity(intent)
-            } else {
-                Toast.makeText(this, "すでに許可されています", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // 3. Battery Optimization
-        findViewById<Button>(R.id.btn_battery_optimization).setOnClickListener {
-            checkBatteryOptimization()
-        }
-
+        // Auto-check battery optimization on startup (silent)
         checkBatteryOptimization()
 
         // 4. Test Buttons
