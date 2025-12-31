@@ -20,8 +20,7 @@ class TriggerService : AccessibilityService() {
     private var pendingSinglePressRunnable: Runnable? = null
     
     // Preference Constants (Must match MainActivity)
-    private val PREFS_NAME = "AmazonMusicTriggerPrefs"
-    private val KEY_SIMPLE_LAUNCH = "simple_launch_mode"
+
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -78,18 +77,7 @@ class TriggerService : AccessibilityService() {
 
     private fun launchAmazonMusic() {
         Log.d("TriggerService", "Detected Double Skip! Preparing to launch Amazon Music.")
-        
-        // 設定を読み込む
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val isSimpleLaunch = prefs.getBoolean(KEY_SIMPLE_LAUNCH, false)
-
-        if (isSimpleLaunch) {
-            Log.d("TriggerService", "Mode: Simple Launch (Just Open App)")
-            launchAppOnly()
-        } else {
-            Log.d("TriggerService", "Mode: My BGM Station")
-            launchMyBgmStation()
-        }
+        launchMyBgmStation()
     }
 
     private fun launchMyBgmStation() {
@@ -105,29 +93,6 @@ class TriggerService : AccessibilityService() {
             startActivity(intent)
         } catch (e: Exception) {
             Log.e("TriggerService", "Error launching Amazon Music Station", e)
-            handler.post {
-                Toast.makeText(applicationContext, "起動エラー: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun launchAppOnly() {
-        handler.post {
-            Toast.makeText(applicationContext, "Amazon Music 起動", Toast.LENGTH_SHORT).show()
-        }
-        try {
-            val intent = packageManager.getLaunchIntentForPackage("com.amazon.mp3")
-            if (intent != null) {
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
-            } else {
-                Log.e("TriggerService", "Amazon Music app not found")
-                handler.post {
-                    Toast.makeText(applicationContext, "Amazon Musicアプリが見つかりません", Toast.LENGTH_LONG).show()
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("TriggerService", "Error launching Amazon Music App", e)
             handler.post {
                 Toast.makeText(applicationContext, "起動エラー: ${e.message}", Toast.LENGTH_LONG).show()
             }

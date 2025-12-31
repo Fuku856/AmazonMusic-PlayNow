@@ -44,36 +44,7 @@
             android:text="重ねて表示の許可設定を開く"
             android:layout_marginBottom="24dp" />
 
-        <!-- 設定セクション -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="3. 動作モード設定 (保存されます)"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
 
-        <RadioGroup
-            android:id="@+id/rg_launch_mode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_border"
-            android:padding="8dp">
-
-            <RadioButton
-                android:id="@+id/rb_mode_station"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="My BGM を再生 (エラーが出る場合あり)"
-                android:checked="true" />
-
-            <RadioButton
-                android:id="@+id/rb_mode_launch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="シンプル起動 (アプリを開くだけ)" />
-        </RadioGroup>
 
         <!-- URIテストセクション -->
         <TextView
@@ -137,6 +108,34 @@
             android:layout_height="wrap_content"
             android:text="テスト: Play Param"
             android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="5. システム診断 (問題解決用)"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btn_run_diagnostics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="診断を実行 (Run Diagnostics)"
+            android:backgroundTint="#607D8B"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tv_log_output"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ログ出力がここに表示されます..."
+            android:background="#EEEEEE"
+            android:padding="8dp"
+            android:layout_marginBottom="24dp"
+            android:typeface="monospace"
+            android:textSize="10sp" />
 
     </LinearLayout>
 </ScrollView>

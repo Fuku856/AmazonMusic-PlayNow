@@ -14,8 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
-    private val PREFS_NAME = "AmazonMusicTriggerPrefs"
-    private val KEY_SIMPLE_LAUNCH = "simple_launch_mode"
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,23 +39,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 3. Launch Mode Settings
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val isSimpleLaunch = prefs.getBoolean(KEY_SIMPLE_LAUNCH, false)
-
-        val rgLaunchMode = findViewById<RadioGroup>(R.id.rg_launch_mode)
-        if (isSimpleLaunch) {
-            findViewById<RadioButton>(R.id.rb_mode_launch).isChecked = true
-        } else {
-            findViewById<RadioButton>(R.id.rb_mode_station).isChecked = true
-        }
-
-        rgLaunchMode.setOnCheckedChangeListener { _, checkedId ->
-            val simpleMode = (checkedId == R.id.rb_mode_launch)
-            prefs.edit().putBoolean(KEY_SIMPLE_LAUNCH, simpleMode).apply()
-            val modeStr = if (simpleMode) "シンプル起動" else "My BGM 再生"
-            Toast.makeText(this, "設定を保存しました: $modeStr", Toast.LENGTH_SHORT).show()
-        }
+        // 3. Launch Mode Settings REMOVED
 
         // 4. Test Buttons
         // Existing Standard Test (uses current preference logic technically, but here we force the specific URI for testing)
@@ -76,6 +59,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btn_test_play_param).setOnClickListener {
             attemptLaunch("amzn://music/play?type=station&id=mysoundtrack")
         }
+
+        findViewById<Button>(R.id.btn_run_diagnostics).setOnClickListener {
+            runDiagnostics()
+        }
     }
 
     private fun attemptLaunch(uriString: String) {
@@ -93,5 +80,61 @@ class MainActivity : AppCompatActivity() {
             Log.e(tag, "Failed to launch $uriString", e)
             Toast.makeText(this, "起動失敗: ${e.message}", Toast.LENGTH_LONG).show()
         }
+    }
+    private fun runDiagnostics() {
+        val sb = StringBuilder()
+        val tvLog = findViewById<android.widget.TextView>(R.id.tv_log_output)
+        sb.append("=== DIAGNOSTIC REPORT ===\n")
+        sb.append("Time: ${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())}\n")
+
+        // 1. Check Package Availability
+        sb.append("\n[1] Package Check 'com.amazon.mp3':\n")
+        try {
+            val pi = packageManager.getPackageInfo("com.amazon.mp3", 0)
+            sb.append(" - FOUND. Ver: ${pi.versionName} (${pi.longVersionCode})\n")
+        } catch (e: Exception) {
+            sb.append(" - NOT FOUND (NameNotFoundException)\n")
+            sb.append("   (Reason: App not installed OR <queries> missing in Manifest)\n")
+        }
+
+        // 2. Check Launch Intent
+        sb.append("\n[2] GetLaunchIntentForPackage:\n")
+        try {
+            val intent = packageManager.getLaunchIntentForPackage("com.amazon.mp3")
+            if (intent != null) {
+                sb.append(" - SUCCESS. Intent: $intent\n")
+            } else {
+                sb.append(" - FAILED. Returned null.\n")
+            }
+        } catch (e: Exception) {
+            sb.append(" - ERROR: ${e.message}\n")
+        }
+
+        // 3. Check URI Resolution (Implicit)
+        sb.append("\n[3] Resolve 'amzn://music/station/mysoundtrack':\n")
+        val uriIntent = Intent(Intent.ACTION_VIEW, Uri.parse("amzn://music/station/mysoundtrack"))
+        val activities = packageManager.queryIntentActivities(uriIntent, 0)
+        sb.append(" - Found ${activities.size} handlers.\n")
+        for (resolveInfo in activities) {
+            sb.append("   * ${resolveInfo.activityInfo.packageName} / ${resolveInfo.activityInfo.name}\n")
+        }
+
+        // 4. Test Explicit Intent (What caused -91?)
+        sb.append("\n[4] Explicit Intent 'com.amazon.mp3':\n")
+        try {
+            val explicitIntent = Intent(Intent.ACTION_VIEW, Uri.parse("amzn://music/station/mysoundtrack"))
+            explicitIntent.setPackage("com.amazon.mp3")
+            // Just resolve, don't start
+            val resolveExplicit = packageManager.resolveActivity(explicitIntent, 0)
+            if (resolveExplicit != null) {
+                sb.append(" - RESOLVED: ${resolveExplicit.activityInfo.name}\n")
+            } else {
+                sb.append(" - FAILED to resolve explicitly.\n")
+            }
+        } catch (e: Exception) {
+            sb.append(" - ERROR: ${e.message}\n")
+        }
+
+        tvLog.text = sb.toString()
     }
 }
