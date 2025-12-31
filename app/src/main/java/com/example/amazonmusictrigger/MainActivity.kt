@@ -54,10 +54,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-        findViewById<Button>(R.id.btn_run_diagnostics).setOnClickListener {
-            runDiagnostics()
-        }
-    }
+
 
     private fun attemptLaunch(uriString: String) {
         val tag = "AmazonMusicTrigger_Debug"
