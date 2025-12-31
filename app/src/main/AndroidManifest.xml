@@ -16,6 +16,10 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="amzn" />
         </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" android:host="music.amazon.co.jp" />
+        </intent>
     </queries>
 
     <application

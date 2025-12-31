@@ -85,8 +85,9 @@ class TriggerService : AccessibilityService() {
             Toast.makeText(applicationContext, "My BGM 起動", Toast.LENGTH_SHORT).show()
         }
         try {
-            // Amazon Music "My BGM" (My Soundtrack) URI
-            val uri = Uri.parse("amzn://music/station/mysoundtrack")
+            // "amzn://" スキームが認識されないため、HTTPSリンク (App Links) を使用
+            // これによりAmazon Musicアプリがリンク関連付けされていればアプリで開く
+            val uri = Uri.parse("https://music.amazon.co.jp/stations/mysoundtrack")
             val intent = Intent(Intent.ACTION_VIEW, uri)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             // intent.setPackage("com.amazon.mp3") // REMOVED
