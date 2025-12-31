@@ -21,6 +21,7 @@ class TriggerService : AccessibilityService() {
     private val doublePressThreshold = 800L // 800ms to allow for system lag
     private val handler = Handler(Looper.getMainLooper())
     private var pendingSinglePressRunnable: Runnable? = null
+    private var ignoreNextKey = false
     
     // Preference Constants (Must match MainActivity)
 
@@ -40,6 +41,9 @@ class TriggerService : AccessibilityService() {
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
+        if (ignoreNextKey) {
+            return super.onKeyEvent(event)
+        }
         val action = event.action
         val keyCode = event.keyCode
 
@@ -85,14 +89,18 @@ class TriggerService : AccessibilityService() {
     }
 
     private fun vibrateFeedback() {
-        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        if (vibrator.hasVibrator()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
-            } else {
-                @Suppress("DEPRECATION")
-                vibrator.vibrate(100)
+        try {
+            val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            if (vibrator.hasVibrator()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(100)
+                }
             }
+        } catch (e: Exception) {
+            Log.e("TriggerService", "Vibration failed", e)
         }
     }
 
@@ -108,6 +116,20 @@ class TriggerService : AccessibilityService() {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             // intent.setPackage("com.amazon.mp3") // REMOVED
             startActivity(intent)
+            
+            // 1.5秒後にホーム画面へ遷移 (バグ回避のため)
+            handler.postDelayed({
+                try {
+                    val homeIntent = packageManager.getLaunchIntentForPackage("com.amazon.mp3")
+                    if (homeIntent != null) {
+                        homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(homeIntent)
+                    }
+                } catch (e: Exception) {
+                    Log.e("TriggerService", "Failed to launch Home", e)
+                }
+            }, 1500)
+
         } catch (e: Exception) {
             Log.e("TriggerService", "Error launching Amazon Music Station", e)
             handler.post {
@@ -119,9 +141,15 @@ class TriggerService : AccessibilityService() {
     private fun performOriginalMediaNext() {
         Log.d("TriggerService", "Single press confirmed. Injecting media key.")
         
+        // 自分のイベントを無視するようにフラグを立てる
+        ignoreNextKey = true
+        
         // AudioManager経由でメディアキーイベントを発行 (これが一番安定確実)
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_NEXT))
         audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_NEXT))
+        
+        // 少し待ってからフラグを下ろす
+        handler.postDelayed({ ignoreNextKey = false }, 300)
     }
 }

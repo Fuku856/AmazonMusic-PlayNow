@@ -59,6 +59,21 @@ class MainActivity : AppCompatActivity() {
     private fun attemptLaunch(uriString: String) {
         val tag = "AmazonMusicTrigger_Debug"
         Log.d(tag, "Testing URI: $uriString")
+
+        // バイブレーション実行
+        try {
+            val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as android.os.Vibrator
+            if (vibrator.hasVibrator()) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    vibrator.vibrate(android.os.VibrationEffect.createOneShot(100, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(100)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Vibration failed", e)
+        }
         
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
