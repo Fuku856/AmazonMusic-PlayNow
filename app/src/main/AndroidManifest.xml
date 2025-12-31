@@ -9,6 +9,15 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <!-- Android 11+ (API 30+) で他アプリの存在を確認するために必要 -->
+    <queries>
+        <package android:name="com.amazon.mp3" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="amzn" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
