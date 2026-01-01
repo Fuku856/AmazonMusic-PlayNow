@@ -20,6 +20,10 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.Toast
 
 class TriggerService : AccessibilityService() {
+    
+    companion object {
+        var isConnected = false
+    }
 
     private var lastNextPressTime: Long = 0
     private val doublePressThreshold = 800L // 800ms to allow for system lag
@@ -35,6 +39,7 @@ class TriggerService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        isConnected = true
         Log.d("TriggerService", "Service Connected")
         Toast.makeText(this, "Amazon Music Trigger サービス開始", Toast.LENGTH_SHORT).show()
         
@@ -145,6 +150,11 @@ class TriggerService : AccessibilityService() {
         if (::mediaSession.isInitialized) {
             mediaSession.release()
         }
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        isConnected = false
+        return super.onUnbind(intent)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {

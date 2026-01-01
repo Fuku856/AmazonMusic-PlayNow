@@ -31,7 +31,9 @@ class MainActivity : AppCompatActivity() {
 
         // Auto-check battery optimization on startup (silent)
         checkBatteryOptimization()
+        checkBatteryOptimization()
         checkOverlayPermission()
+        updateServiceStatus()
 
         // 4. Test Buttons
         // Existing Standard Test (uses current preference logic technically, but here we force the specific URI for testing)
@@ -166,6 +168,28 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkAccessibilityServiceEnabled()
+        updateServiceStatus()
+    }
+    
+    private fun updateServiceStatus() {
+        val tvLog = findViewById<android.widget.TextView>(R.id.tv_log_output)
+        val statusText = if (TriggerService.isConnected) "Status: Connected (OK)" else "Status: Disconnected (NG)"
+        val color = if (TriggerService.isConnected) android.graphics.Color.GREEN else android.graphics.Color.RED
+        
+        // Append status to log area for visibility
+        val currentText = tvLog.text.toString()
+        if (!currentText.startsWith("Status:")) {
+             tvLog.text = "$statusText\n\n$currentText"
+        } else {
+             // Replace first line
+             val lines = currentText.split("\n", limit = 2)
+             if (lines.size > 1) {
+                 tvLog.text = "$statusText\n${lines[1]}"
+             } else {
+                 tvLog.text = statusText
+             }
+        }
+        tvLog.setTextColor(color)
     }
 
     private fun checkAccessibilityServiceEnabled() {
