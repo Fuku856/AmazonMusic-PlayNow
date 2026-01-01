@@ -106,15 +106,22 @@ class TriggerService : AccessibilityService() {
                 if (keyEvent != null) {
                     Log.d("TriggerService", "MediaSession onMediaButtonEvent: ${keyEvent.keyCode} ${keyEvent.action}")
                     // ここでもキーイベント処理を共有
-                    if (keyEvent.action == KeyEvent.ACTION_DOWN) {
-                         android.os.Handler(android.os.Looper.getMainLooper()).post {
-                             Toast.makeText(applicationContext, "Session Key: ${keyEvent.keyCode}", Toast.LENGTH_SHORT).show()
-                         }
-                         if (keyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
-                             handleMediaNext()
-                             return true // 消費する
-                         }
-                    }
+                     if (keyEvent.action == KeyEvent.ACTION_DOWN) {
+                          android.os.Handler(android.os.Looper.getMainLooper()).post {
+                              Toast.makeText(applicationContext, "Session: ${KeyEvent.keyCodeToString(keyEvent.keyCode)}", Toast.LENGTH_SHORT).show()
+                          }
+                          // 任意のメディアキーで反応を試みる
+                          if (keyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_NEXT || 
+                              keyEvent.keyCode == KeyEvent.KEYCODE_HEADSETHOOK ||
+                              keyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) {
+                              
+                              if (keyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
+                                  handleMediaNext()
+                                  return true
+                              }
+                              // HEADSETHOOK等のダブルクリック判定はロジックが異なるが、まずは検知確認
+                          }
+                     }
                 }
                 return super.onMediaButtonEvent(mediaButtonEvent)
             }
@@ -156,13 +163,27 @@ class TriggerService : AccessibilityService() {
         }
 
 
-        if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
+        if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT ||
+            keyCode == KeyEvent.KEYCODE_HEADSETHOOK ||
+            keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE || 
+            keyCode == KeyEvent.KEYCODE_MEDIA_PLAY ||
+            keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE) {
+            
             if (action == KeyEvent.ACTION_DOWN) {
-                // ダウンイベントのみ処理
-                handleMediaNext()
+                // デバッグ用: 種類の表示
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                     Toast.makeText(applicationContext, "Key: ${KeyEvent.keyCodeToString(keyCode)}", Toast.LENGTH_SHORT).show()
+                }
+
+                if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
+                    handleMediaNext()
+                    return true
+                }
+                // 他のキーも一旦消費してみる（テスト）
+                // return true 
             }
-            // UPおよびDOWN両方のイベントを消費 (return true) して、デフォルトの曲送りを防ぐ
-            return true
+            // NEXT以外はスルーするか、独自のダブルタップロジックを入れるか
+            if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) return true
         }
 
         return super.onKeyEvent(event)
