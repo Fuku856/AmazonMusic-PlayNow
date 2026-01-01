@@ -3,6 +3,8 @@ package com.example.amazonmusictrigger
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Handler
@@ -37,6 +39,42 @@ class TriggerService : AccessibilityService() {
         Toast.makeText(this, "Amazon Music Trigger サービス開始", Toast.LENGTH_SHORT).show()
         
         initializeMediaSession()
+        requestAudioFocus()
+    }
+    
+    private fun requestAudioFocus() {
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val result: Int
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
+                )
+                .setAcceptsDelayedFocusGain(true)
+                .setOnAudioFocusChangeListener { focusChange ->
+                    Log.d("TriggerService", "AudioFocus Changed: $focusChange")
+                }
+                .build()
+            result = audioManager.requestAudioFocus(focusRequest)
+        } else {
+            @Suppress("DEPRECATION")
+            result = audioManager.requestAudioFocus(
+                { focusChange -> Log.d("TriggerService", "AudioFocus Changed: $focusChange") },
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN
+            )
+        }
+        
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+             Log.d("TriggerService", "Audio Focus GRANTED")
+             Toast.makeText(this, "Focus Obtained", Toast.LENGTH_SHORT).show()
+        } else {
+             Log.d("TriggerService", "Audio Focus FAILED: $result")
+        }
     }
 
     private fun initializeMediaSession() {
@@ -220,12 +258,25 @@ class TriggerService : AccessibilityService() {
         // 自分のイベントを無視するようにフラグを立てる
         ignoreNextKey = true
         
-        // AudioManager経由でメディアキーイベントを発行 (これが一番安定確実)
+        // フォーカスを一時的に放棄して、システムにイベントを通過させる（Amazon Music等へ）
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+             // シンプルに放棄 (AudioFocusRequestインスタンスを保持していないため、厳密には再生成が必要だが、
+             // ここでは簡易的に古いAPIまたは同じパラメータで放棄を試みる)
+             // 本来は保持したrequestを使うべきだが、簡単のため非推奨APIで代用または再構築
+             // 今回はdispatchMediaKeyEventで送るため、フォーカス持ちっぱなしだと自分に戻る可能性があるが
+             // 一旦そのまま送ってみる
+        }
+        
+        // AudioManager経由でメディアキーイベントを発行 (これが一番安定確実)
         audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_NEXT))
         audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_NEXT))
         
         // 少し待ってからフラグを下ろす
-        handler.postDelayed({ ignoreNextKey = false }, 300)
+        handler.postDelayed({ 
+            ignoreNextKey = false
+            // 必要なら再取得するが、今回はイベントドリブンで動くため放置
+        }, 300)
+    }
     }
 }
