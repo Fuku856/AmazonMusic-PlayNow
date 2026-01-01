@@ -3,6 +3,10 @@ package com.example.amazonmusictrigger
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
 import android.content.Intent
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -41,12 +45,51 @@ class TriggerService : AccessibilityService() {
         super.onServiceConnected()
         isConnected = true
         Log.d("TriggerService", "Service Connected")
-        Toast.makeText(this, "Amazon Music Trigger サービス開始", Toast.LENGTH_SHORT).show()
+        // Toast.makeText(this, "Amazon Music Trigger サービス開始", Toast.LENGTH_SHORT).show()
         
+        startForegroundService()
         initializeMediaSession()
         requestAudioFocus()
     }
-    
+
+    private fun startForegroundService() {
+        val channelId = "trigger_service_channel"
+        val channelName = "Trigger Service"
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW)
+            val manager = getSystemService(NotificationManager::class.java)
+            manager?.createNotificationChannel(channel)
+        }
+
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, notificationIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(this, channelId)
+                .setContentTitle("Amazon Music Trigger Running")
+                .setContentText("Listening for earphone controls...")
+                .setSmallIcon(R.mipmap.ic_launcher) // Fallback icon
+                .setContentIntent(pendingIntent)
+                .setOngoing(true)
+                .build()
+        } else {
+             @Suppress("DEPRECATION")
+             Notification.Builder(this)
+                .setContentTitle("Amazon Music Trigger Running")
+                .setContentText("Listening for earphone controls...")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentIntent(pendingIntent)
+                .setOngoing(true)
+                .build()
+        }
+
+        startForeground(1, notification)
+    }
+
     private fun requestAudioFocus() {
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val result: Int
