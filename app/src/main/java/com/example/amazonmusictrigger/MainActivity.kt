@@ -9,10 +9,12 @@ import android.view.accessibility.AccessibilityManager
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.KeyEvent
 import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
+import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -214,4 +216,24 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    private fun checkOverlayPermission() {
+        if (!Settings.canDrawOverlays(this)) {
+            Toast.makeText(this, "バックグラウンド実行のため、「他のアプリの上に重ねて表示」を許可してください", Toast.LENGTH_LONG).show()
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+            startActivity(intent)
+        }
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+        if (event != null) {
+            val keyCode = event.keyCode
+            val action = event.action
+             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT || keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
+                if (action == KeyEvent.ACTION_DOWN) {
+                    Toast.makeText(this, "MainAct Key: $keyCode", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event)
+    }
 }

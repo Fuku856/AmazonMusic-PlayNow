@@ -13,6 +13,8 @@ import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.Toast
 
 class TriggerService : AccessibilityService() {
@@ -21,7 +23,10 @@ class TriggerService : AccessibilityService() {
     private val doublePressThreshold = 800L // 800ms to allow for system lag
     private val handler = Handler(Looper.getMainLooper())
     private var pendingSinglePressRunnable: Runnable? = null
+
     private var ignoreNextKey = false
+    
+    private lateinit var mediaSession: MediaSessionCompat
     
     // Preference Constants (Must match MainActivity)
 
@@ -30,6 +35,62 @@ class TriggerService : AccessibilityService() {
         super.onServiceConnected()
         Log.d("TriggerService", "Service Connected")
         Toast.makeText(this, "Amazon Music Trigger サービス開始", Toast.LENGTH_SHORT).show()
+        
+        initializeMediaSession()
+    }
+
+    private fun initializeMediaSession() {
+        mediaSession = MediaSessionCompat(this, "TriggerServiceMediaSession")
+        
+        // メディアボタンなどを受け取るためのフラグを設定
+        mediaSession.setFlags(
+            MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
+            MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+        )
+
+        // 常に再生中（待機中）として振る舞い、ボタンの優先権を得る
+        val stateBuilder = PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY or
+                PlaybackStateCompat.ACTION_PAUSE or
+                PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+                PlaybackStateCompat.ACTION_PLAY_PAUSE
+            )
+            .setState(PlaybackStateCompat.STATE_PAUSED, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 0f)
+        
+        mediaSession.setPlaybackState(stateBuilder.build())
+
+        // コールバック設定
+        mediaSession.setCallback(object : MediaSessionCompat.Callback() {
+            override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {
+                val keyEvent = mediaButtonEvent?.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)
+                if (keyEvent != null) {
+                    Log.d("TriggerService", "MediaSession onMediaButtonEvent: ${keyEvent.keyCode} ${keyEvent.action}")
+                    // ここでもキーイベント処理を共有
+                    if (keyEvent.action == KeyEvent.ACTION_DOWN) {
+                         android.os.Handler(android.os.Looper.getMainLooper()).post {
+                             Toast.makeText(applicationContext, "Session Key: ${keyEvent.keyCode}", Toast.LENGTH_SHORT).show()
+                         }
+                         if (keyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
+                             handleMediaNext()
+                             return true // 消費する
+                         }
+                    }
+                }
+                return super.onMediaButtonEvent(mediaButtonEvent)
+            }
+        })
+
+        mediaSession.isActive = true
+        Log.d("TriggerService", "MediaSession initialized and active")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::mediaSession.isInitialized) {
+            mediaSession.release()
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
