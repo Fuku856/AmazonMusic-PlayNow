@@ -110,6 +110,15 @@ class TriggerService : AccessibilityService() {
                           android.os.Handler(android.os.Looper.getMainLooper()).post {
                               Toast.makeText(applicationContext, "Session: ${KeyEvent.keyCodeToString(keyEvent.keyCode)}", Toast.LENGTH_SHORT).show()
                           }
+                          // デバッグ振動 (短く1回)
+                          val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                              v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+                          } else {
+                              v.vibrate(50)
+                          }
+
+                          // 任意のメディアキーで反応を試みる
                           // 任意のメディアキーで反応を試みる
                           if (keyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_NEXT || 
                               keyEvent.keyCode == KeyEvent.KEYCODE_HEADSETHOOK ||
@@ -173,6 +182,13 @@ class TriggerService : AccessibilityService() {
                 // デバッグ用: 種類の表示
                 android.os.Handler(android.os.Looper.getMainLooper()).post {
                      Toast.makeText(applicationContext, "Key: ${KeyEvent.keyCodeToString(keyCode)}", Toast.LENGTH_SHORT).show()
+                }
+                // デバッグ振動 (短く1回)
+                val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    v.vibrate(50)
                 }
 
                 if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
