@@ -278,5 +278,4 @@ class TriggerService : AccessibilityService() {
             // 必要なら再取得するが、今回はイベントドリブンで動くため放置
         }, 300)
     }
-    }
 }
