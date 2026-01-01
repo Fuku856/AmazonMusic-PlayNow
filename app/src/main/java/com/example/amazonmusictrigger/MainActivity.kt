@@ -14,7 +14,6 @@ import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
-import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -215,14 +214,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun checkOverlayPermission() {
-        if (!Settings.canDrawOverlays(this)) {
-            Toast.makeText(this, "バックグラウンド実行のため、「他のアプリの上に重ねて表示」を許可してください", Toast.LENGTH_LONG).show()
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
-            startActivity(intent)
-        }
-    }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
         if (event != null) {
